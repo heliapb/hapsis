@@ -1,0 +1,8 @@
+backends:
+  - name: eu
+    url: http://tempo-eu:3200
+    headers:
+      X-Scope-OrgID: prod
+  - name: us
+    url: http://tempo-us:3200
+    timeout: 30s

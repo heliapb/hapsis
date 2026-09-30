@@ -1,0 +1,10 @@
+apiVersion: 1
+datasources:
+  - name: hapsis
+    type: tempo
+    access: proxy
+    url: http://hapsis:3200
+    isDefault: true
+    jsonData:
+      search:
+        hide: true

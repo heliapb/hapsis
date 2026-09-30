@@ -1,0 +1,5 @@
+backends:
+  - name: eu
+    url: http://tempo-eu:3200
+  - name: us
+    url: http://tempo-us:3200

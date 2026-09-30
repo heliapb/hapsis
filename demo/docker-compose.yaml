@@ -1,0 +1,42 @@
+services:
+  tempo-eu:
+    image: grafana/tempo:3.1.0
+    command: ["-config.file=/etc/tempo.yaml"]
+    user: root
+    volumes:
+      - ./tempo.yaml:/etc/tempo.yaml:ro
+
+  tempo-us:
+    image: grafana/tempo:3.1.0
+    command: ["-config.file=/etc/tempo.yaml"]
+    user: root
+    volumes:
+      - ./tempo.yaml:/etc/tempo.yaml:ro
+
+  hapsis:
+    build: ..
+    command: ["-config=/etc/hapsis.yaml"]
+    volumes:
+      - ./hapsis.yaml:/etc/hapsis.yaml:ro
+    ports:
+      - "3200:3200"
+    depends_on: [tempo-eu, tempo-us]
+
+  seed:
+    image: curlimages/curl:8.11.1
+    entrypoint: ["/seed.sh"]
+    volumes:
+      - ./seed.sh:/seed.sh:ro
+    depends_on: [tempo-eu, tempo-us]
+    restart: "no"
+
+  grafana:
+    image: grafana/grafana:13.2.3
+    ports:
+      - "3000:3000"
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
+    volumes:
+      - ./grafana-datasources.yaml:/etc/grafana/provisioning/datasources/tempo.yaml:ro
+    depends_on: [hapsis]
