@@ -6,7 +6,7 @@ Hapsis is a federating proxy for [Grafana Tempo](https://github.com/grafana/temp
 
 ## Status
 
-[WIP] only implemented  **Trace by ID** (`/api/v2/traces/{id}`) by now.
+[WIP] only implemented  **Trace by ID** (`/api/v2/traces/{id}`) and `/api/traces/{id}`.
 
 ## Run
 
