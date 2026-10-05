@@ -12,7 +12,7 @@ import (
 	"github.com/grafana/tempo/v3/pkg/util"
 )
 
-// handleTraceByID serves /api/v2/traces/{id}.
+// handleTraceByID serves /api/traces/{id} (v2=false) and /api/v2/traces/{id} (v2=true).
 // Backends that answer 404 are skipped
 // a trace found on several backends is merged and de-duplicated by Tempo's own combiner.
 func (p *Proxy) handleTraceByID(v2 bool) http.HandlerFunc {
@@ -59,7 +59,7 @@ func spanCount(tr *tempopb.Trace) int {
 // traceByID fans the lookup out and merges the results.
 // On error it returns the HTTP status the client should see.
 func (p *Proxy) traceByID(r *http.Request, traceID string) (*tempopb.TraceByIDResponse, int, error) {
-	results := p.fanOut(r.Context(), r, "/api/v2/traces/"+hi)
+	results := p.fanOut(r.Context(), r, "/api/v2/traces/"+traceID)
 	defer func() {
 		for _, res := range results {
 			if res.resp != nil {

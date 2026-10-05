@@ -9,6 +9,9 @@ import (
 	"github.com/grafana/tempo/v3/pkg/api"
 )
 
+// forwarded lists the client request headers copied to every backend.
+var forwarded = []string{"X-Scope-OrgID", "Authorization", "Traceparent", "Tracestate"}
+
 type result struct {
 	backend *backend
 	resp    *http.Response
@@ -35,8 +38,6 @@ func (p *Proxy) call(ctx context.Context, b *backend, in *http.Request, path str
 	resp, err := b.client.Do(req)
 	return result{backend: b, resp: resp, err: err}
 }
-
-var forwarded = []string{"X-Scope-OrgID", "Authorization", "Traceparent", "Tracestate"}
 
 // buildRequest derives the upstream request from the client request
 func buildRequest(ctx context.Context, b *backend, in *http.Request, path string) (*http.Request, error) {
