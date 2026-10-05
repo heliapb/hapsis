@@ -6,10 +6,12 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"net"
 	"net/http"
 	"net/url"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/gogo/protobuf/jsonpb"
 	"github.com/gogo/protobuf/proto"
@@ -44,10 +46,23 @@ func New(cfg *config.Config, logger *slog.Logger) (*Proxy, error) {
 			name:    b.Name,
 			url:     u,
 			headers: b.Headers,
-			client:  &http.Client{Timeout: b.Timeout},
+			client:  &http.Client{Transport: newTransport(), Timeout: b.Timeout},
 		})
 	}
 	return p, nil
+}
+
+// newTransport returns a transport tuned for many concurrent requests to a single host
+func newTransport() *http.Transport {
+	return &http.Transport{
+		Proxy:               http.ProxyFromEnvironment,
+		DialContext:         (&net.Dialer{Timeout: 5 * time.Second, KeepAlive: 30 * time.Second}).DialContext,
+		ForceAttemptHTTP2:   true,
+		MaxIdleConns:        256,
+		MaxIdleConnsPerHost: 64,
+		IdleConnTimeout:     5 * time.Minute,
+		TLSHandshakeTimeout: 10 * time.Second,
+	}
 }
 
 func (p *Proxy) Handler() http.Handler {
